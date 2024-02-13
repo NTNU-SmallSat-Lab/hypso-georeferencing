@@ -20,6 +20,8 @@ class GCPList():
 
         # Some GCP files use 'epsg:3857' as src_crs
 
+
+        print(filename)
         gcps = []
         with open(filename, 'r') as csv_file:
 
