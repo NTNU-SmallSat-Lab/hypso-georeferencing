@@ -111,7 +111,7 @@ class Georeferencer(GCPList):
     def generate_polynomial_lat_lon_arrays(self, transform: skimage.transform.PolynomialTransform, image_height: int, image_width: int):
 
             # Create empty arrays to write lat and lon data
-            lattitudes = np.empty((image_height, image_width))
+            latitudes = np.empty((image_height, image_width))
             longitudes = np.empty((image_height, image_width))
 
             # Generate X and Y coordinates
@@ -126,7 +126,7 @@ class Georeferencer(GCPList):
             # Copy transformed lat and lon coords into lat and lon arrays
             for idx,coord in enumerate(image_coordinates):
                 longitudes[coord] = geo_coordinates[idx,0]
-                lattitudes[coord] = geo_coordinates[idx,1]
+                latitudes[coord] = geo_coordinates[idx,1]
 
             # Mirror arrays
             latitudes = latitudes[:,::-1]
