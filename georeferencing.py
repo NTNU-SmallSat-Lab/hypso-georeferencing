@@ -19,9 +19,7 @@ class GCPList():
     def load_gcps(self, filename, src_crs='epsg:4326', dst_crs='epsg:4326'):
 
         # Some GCP files use 'epsg:3857' as src_crs
-
-
-        print(filename)
+        
         gcps = []
         with open(filename, 'r') as csv_file:
 
