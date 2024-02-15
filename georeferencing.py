@@ -127,8 +127,8 @@ class Georeferencer(GCPList):
                 latitudes[coord] = geo_coordinates[idx,1]
 
             # Mirror arrays
-            latitudes = latitudes[:,::-1]
-            longitudes = longitudes[:,::-1]
+            #latitudes = latitudes[:,::-1]
+            #longitudes = longitudes[:,::-1]
         
             return latitudes, longitudes
 
