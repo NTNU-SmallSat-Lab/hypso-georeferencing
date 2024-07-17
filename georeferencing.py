@@ -8,6 +8,9 @@ import os
 
 class GCPList(list):
 
+    SUPPORTED_IMAGE_MODES = ['bin3', 'scale3']
+    SUPPORTED_ORIGIN_MODES = ['qgis', 'cube']
+
     def __init__(self, filename, crs='epsg:4326', image_mode=None, origin_mode='qgis', height=None, width=None):
 
         super().__init__()
@@ -18,15 +21,15 @@ class GCPList(list):
         # Drop the file extension
         base, extension = file.rsplit('.', 1)
 
-        bin3_index = base.find('-' + 'bin3')
-        scale3_index = base.find('-' + 'scale3')
+        # Find image mode string and remove it from basename
+        image_mode_indices = []
+        for im in self.SUPPORTED_IMAGE_MODES:
+            image_mode_indices.append(base.find('-' + im))
 
-        image_mode_index = max([bin3_index, scale3_index])
-
-        if image_mode_index < 1:
+        if max(image_mode_indices) < 1:
             basename = base
         else:
-            basename = base[:image_mode_index]
+            basename = base[:max(image_mode_indices)]
 
         # Set filename info
         self.filename = filename
@@ -37,8 +40,12 @@ class GCPList(list):
         # Set CRS
         self.crs = crs
 
+        # Set image mode
         if image_mode is None:
             self.image_mode = self._detect_image_mode()
+        else:
+            self.image_mode = image_mode
+            self.image_mode = self._check_image_mode()
 
         self._load_gcps()
 
@@ -46,15 +53,21 @@ class GCPList(list):
 
         detected_image_mode = 'standard'
 
-        image_modes = ['bin3', 'scale3']
-
-        for image_mode in image_modes:
+        for image_mode in self.SUPPORTED_IMAGE_MODES:
             if '-' + image_mode in self.filename:
                 detected_image_mode = image_mode
             
         print('No image mode provided. Detected image mode: ' + detected_image_mode)
 
         return detected_image_mode
+
+    def _check_image_mode(self):
+
+        if self.image_mode not in self.SUPPORTED_IMAGE_MODES:
+            print('Invalid image mode ' + self.image_mode + ' provided. Defaulting to \'standard\' mode.')
+            self.image_mode = 'standard'
+
+
 
     def _load_gcps(self):
 
@@ -102,21 +115,6 @@ class GCPList(list):
                 self.filename = self.path + '/' + self.basename + '-scale3.' + self.extension
 
 
-    def _get_basename(self):
-
-        # Drop the file extension
-        base, extension = self.filename.rsplit('.', 1)
-
-        # Find the position of the '-bin' string
-        bin_index = base.find('-bin3')
-
-        # Get the part of the filename before '-bin'
-        if bin_index != -1:
-            result = base[:bin_index]
-        else:
-            result = base  # If '-bin' is not found, return the original filename
-
-        return result
 
     def convert_crs(self, dst_crs=None):
 
