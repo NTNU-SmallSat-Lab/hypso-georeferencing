@@ -253,16 +253,6 @@ class GCPList(list):
         self.mode = 'bin3'
 
 
-
-
-
-
-
-
-
-
-
-
 class GCP(dict):
 
     def __init__(self, mapX, mapY, sourceX, sourceY, enable=1, dX=0, dY=0, residual=0, crs='epsg:4326'):
@@ -313,8 +303,6 @@ class GCP(dict):
                                                             y=self['mapY'])
 
             self.crs = dst_crs
-
-
 
 
 class PointsCSV():
@@ -402,60 +390,11 @@ class PointsCSV():
 
         return header, fieldnames, unproc_gcps 
 
-        '''
-        # Unprocessed GCPs list
-        unproc_gcps = []
-
-        with open(filename, 'r') as csv_file:
-
-            # Open CSV file
-            reader = csv.reader(csv_file)
-
-            # Read .points QGIS header
-            header = next(reader) 
-
-            # Read column labels
-            labels = next(reader) 
-
-            # Iterate through rows
-            for line in reader:
-
-                # Add line to unprocessed GCPs list
-                unproc_gcps.append(line)
-
-            # Close file
-            csv_file.close()
-
-        self.header = header
-        self.labels = labels
-        self.unproc_gcps = unproc_gcps 
-        '''
-
-#f = '/home/cameron/Nedlastinger/vigo_2023-02-10_0952Z.points'
-
-#pcsv = PointsCSV(f)
-
-#pcsv.read_points_csv_2(f)
-
-#print(pcsv.header)
-#print(pcsv.labels)
-#print('GCPs')
-#print(pcsv.unproc_gcps[0])
-#print(len(pcsv.unproc_gcps))
-
-#f = '/home/cameron/Nedlastinger/vigo_2023-02-10_0952Z-test.points'
-
-#pcsv.write_points_csv(f)
 
 
 
-#x = GCP(mapX=3, mapY=2, sourceX=1, sourceY=1)
 
-#print(x.gcp)
-
-#print(x.crs)
-
-
+'''
 f = '/home/cameron/Nedlastinger/Frohavet/frohavet_2024-04-15_1006Z-original-bin3.points'
 y = GCPList(f)
 
@@ -468,5 +407,4 @@ print(y.mode)
 y.save()
 
 #y.change_mode(dst_mode='')
-
-
+'''
