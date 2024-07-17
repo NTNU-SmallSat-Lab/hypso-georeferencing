@@ -1,7 +1,7 @@
 
 #import sys
 #sys.path.append('../')
-import georeferencing as georeferencing
+import georeferencing
 import os
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
@@ -16,3 +16,4 @@ gr = georeferencing.Georeferencer(filename, height, width)
 
 print(gr.latitudes)
 print(gr.longitudes)
+

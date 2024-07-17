@@ -8,10 +8,9 @@ import os
 
 class GCPList(list):
 
-    def __init__(self, filename, crs='epsg:4326', mode=None):
+    def __init__(self, filename, crs='epsg:4326', image_mode=None, origin_mode='qgis', height=None, width=None):
 
         super().__init__()
-
 
         # Split the path from the filename
         path, file = os.path.split(filename)
@@ -22,12 +21,12 @@ class GCPList(list):
         bin3_index = base.find('-' + 'bin3')
         scale3_index = base.find('-' + 'scale3')
 
-        mode_index = max([bin3_index, scale3_index])
+        image_mode_index = max([bin3_index, scale3_index])
 
-        if mode_index < 1:
+        if image_mode_index < 1:
             basename = base
         else:
-            basename = base[:mode_index]
+            basename = base[:image_mode_index]
 
         # Set filename info
         self.filename = filename
@@ -38,24 +37,24 @@ class GCPList(list):
         # Set CRS
         self.crs = crs
 
-        if mode is None:
-            self.mode = self._detect_mode()
+        if image_mode is None:
+            self.image_mode = self._detect_image_mode()
 
         self._load_gcps()
 
-    def _detect_mode(self):
+    def _detect_image_mode(self):
 
-        detected_mode = 'standard'
+        detected_image_mode = 'standard'
 
-        modes = ['bin3', 'scale3']
+        image_modes = ['bin3', 'scale3']
 
-        for mode in modes:
-            if '-' + mode in self.filename:
-                detected_mode = mode
+        for image_mode in image_modes:
+            if '-' + image_mode in self.filename:
+                detected_image_mode = image_mode
             
-        print('No mode provided. Detected mode: ' + detected_mode)
+        print('No image mode provided. Detected image mode: ' + detected_image_mode)
 
-        return detected_mode
+        return detected_image_mode
 
     def _load_gcps(self):
 
@@ -88,7 +87,7 @@ class GCPList(list):
         # Drop the file extension
         #base, extension = file.rsplit('.', 1)
 
-        match self.mode:
+        match self.image_mode:
 
             case 'standard':
 
@@ -128,56 +127,56 @@ class GCPList(list):
                 gcp.convert_gcp_crs(dst_crs)
 
     
-    def change_mode(self, dst_mode=None):
+    def change_image_mode(self, dst_image_mode=None):
 
-        match self.mode:
+        match self.image_mode:
 
             case 'standard':
 
-                match dst_mode:
+                match dst_image_mode:
 
                     case 'bin3':
-                        self._standard_to_bin3_mode()
+                        self._standard_to_bin3_image_mode()
                         self._update_filename()
 
                     case 'scale3':
-                        self._standard_to_scale3_mode()
+                        self._standard_to_scale3_image_mode()
                         self._update_filename()
 
                 return
 
             case 'bin3':
                 
-                match dst_mode:
+                match dst_image_mode:
 
                     case 'standard':
-                        self._bin3_to_standard_mode()
+                        self._bin3_to_standard_image_mode()
                         self._update_filename()
 
                     case 'scale3':
-                        self._bin3_to_scale3_mode()
+                        self._bin3_to_scale3_image_mode()
                         self._update_filename()
 
                 return
 
             case 'scale3':
 
-                match dst_mode:
+                match dst_image_mode:
 
                     case 'standard':
-                        self._scale3_to_standard_mode()
+                        self._scale3_to_standard_image_mode()
                         self._update_filename()
 
                     case 'bin3':
-                        self._scale3_to_bin3_mode()
+                        self._scale3_to_bin3_image_mode()
                         self._update_filename()
 
                 return
     
 
-    # standard mode conversion functons
+    # standard image mode conversion functons
 
-    def _standard_to_bin3_mode(self):
+    def _standard_to_bin3_image_mode(self):
         for idx, gcp in enumerate(self):
 
             # Apply binning
@@ -186,9 +185,9 @@ class GCPList(list):
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
-        self.mode = 'bin3'
+        self.image_mode = 'bin3'
 
-    def _standard_to_scale3_mode(self):
+    def _standard_to_scale3_image_mode(self):
 
         for idx, gcp in enumerate(self):
 
@@ -198,11 +197,11 @@ class GCPList(list):
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
-        self.mode = 'scale3'
+        self.image_mode = 'scale3'
 
-    # bin3 mode conversion functions
+    # bin3 image mode conversion functions
 
-    def _bin3_to_standard_mode(self):
+    def _bin3_to_standard_image_mode(self):
                 
         for idx, gcp in enumerate(self):
 
@@ -212,9 +211,9 @@ class GCPList(list):
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
-        self.mode = 'standard'
+        self.image_mode = 'standard'
 
-    def _bin3_to_scale3_mode(self):
+    def _bin3_to_scale3_image_mode(self):
         
         for idx, gcp in enumerate(self):
 
@@ -225,11 +224,11 @@ class GCPList(list):
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
-        self.mode = 'scale3'
+        self.image_mode = 'scale3'
 
-    # scale3 mode conversion functions
+    # scale3 image mode conversion functions
 
-    def _scale3_to_standard_mode(self):
+    def _scale3_to_standard_image_mode(self):
         
         for idx, gcp in enumerate(self):
 
@@ -239,9 +238,9 @@ class GCPList(list):
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
-        self.mode = 'standard'
+        self.image_mode = 'standard'
 
-    def _scale3_to_bin3_mode(self):
+    def _scale3_to_bin3_image_mode(self):
         
         for idx, gcp in enumerate(self):
 
@@ -252,7 +251,7 @@ class GCPList(list):
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
-        self.mode = 'bin3'
+        self.image_mode = 'bin3'
 
 
 class GCP(dict):
@@ -392,8 +391,8 @@ class PointsCSV():
 
 class Georeferencer(GCPList):
 
-    def __init__(self, filename, height, width):
-        super().__init__(filename)
+    def __init__(self, filename, height, width, crs='epsg:4326', image_mode=None, origin_mode='qgis'):
+        super().__init__(filename, crs, image_mode, origin_mode)
 
         self.height = height
         self.width = width
