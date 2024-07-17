@@ -4,7 +4,7 @@ import rasterio
 import csv
 import skimage
 import numpy as np
-
+import os 
 
 class GCPList(list):
 
@@ -13,7 +13,29 @@ class GCPList(list):
         super().__init__()
 
 
+        # Split the path from the filename
+        path, file = os.path.split(filename)
+
+        # Drop the file extension
+        base, extension = file.rsplit('.', 1)
+
+        bin3_index = base.find('-' + 'bin3')
+        scale3_index = base.find('-' + 'scale3')
+
+        mode_index = max([bin3_index, scale3_index])
+
+        if mode_index < 1:
+            basename = base
+        else:
+            basename = base[:mode_index]
+
+        # Set filename info
         self.filename = filename
+        self.path = path
+        self.extension = extension
+        self.basename = basename
+
+        # Set CRS
         self.crs = crs
 
         if mode is None:
@@ -46,57 +68,39 @@ class GCPList(list):
             self.append(gcp)
 
 
-    def save(self):
+    def save(self, filename=None):
 
-         
-        self._update_filename()
+        if filename is None:
+            print('Writing .points file to: ' + self.filename)
+            pcsv = PointsCSV(self.filename)
+        else:
+            pcsv = PointsCSV(filename)
 
-        # TODO: write .points file
-        #pcsv = PointsCSV(self.filename)
-
-        #pcsv.write_points_csv(gcps=self)
+        pcsv.write_points_csv(gcps=self)
 
 
 
     def _update_filename(self):
 
         # Split the path from the filename
-        path, file = os.path.split(self.filename)
+        #path, file = os.path.split(self.filename)
 
         # Drop the file extension
-        base, extension = file.rsplit('.', 1)
+        #base, extension = file.rsplit('.', 1)
 
         match self.mode:
 
             case 'standard':
 
-                basename = base
-                self.filename = basename + '.points'
+                self.filename = self.path + '/' + self.basename + '.' + self.extension
 
             case 'bin3':
                 
-                # Find the position of the '-bin' string
-                bin_index = base.find('-' + 'bin3')
-
-                # Get the part of the filename before '-bin'
-                if bin_index != -1:
-                    basename = base[:bin_index]
-
-                self.filename = basename + '-bin3.points'
+                self.filename = self.path + '/' + self.basename + '-bin3.' + self.extension
 
             case 'scale3':
 
-                # Find the position of the '-bin' string
-                bin_index = base.find('-' + 'scale3')
-
-                # Get the part of the filename before '-bin'
-                if bin_index != -1:
-                    basename = base[:bin_index]
-
-                self.filename = basename + '-scale3.points'
-
-
-
+                self.filename = self.path + '/' + self.basename + '-scale3.' + self.extension
 
 
     def _get_basename(self):
@@ -134,9 +138,11 @@ class GCPList(list):
 
                     case 'bin3':
                         self._standard_to_bin3_mode()
+                        self._update_filename()
 
                     case 'scale3':
                         self._standard_to_scale3_mode()
+                        self._update_filename()
 
                 return
 
@@ -146,9 +152,11 @@ class GCPList(list):
 
                     case 'standard':
                         self._bin3_to_standard_mode()
+                        self._update_filename()
 
                     case 'scale3':
                         self._bin3_to_scale3_mode()
+                        self._update_filename()
 
                 return
 
@@ -158,9 +166,11 @@ class GCPList(list):
 
                     case 'standard':
                         self._scale3_to_standard_mode()
+                        self._update_filename()
 
                     case 'bin3':
                         self._scale3_to_bin3_mode()
+                        self._update_filename()
 
                 return
     
@@ -318,12 +328,6 @@ class PointsCSV():
 
             csv_file.write(self.default_header)
             csv_file.write('\n')
-            #csv_file.write(self.default_fieldnames)
-            #csv_file.write('\n')
-
-            #writer = csv.writer(csv_file, delimiter=',')
-            #writer.writerow(['Spam'] * 5 + ['Baked Beans'])
-            #writer.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
 
             # Open CSV file for writing
             writer = csv.DictWriter(csv_file, 
@@ -490,17 +494,4 @@ class Georeferencer(GCPList):
 
 
 
-#f = '/home/cameron/Nedlastinger/Frohavet/frohavet_2024-04-15_1006Z-original-bin3.points'
-#y = GCPList(f)
 
-#print(y)
-
-#print(y.mode)
-
-#y.change_mode(dst_mode='scale3')
-
-#print(y.mode)
-
-#y.save()
-
-#y.change_mode(dst_mode='')
