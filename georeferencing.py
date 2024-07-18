@@ -123,28 +123,18 @@ class GCPList(list):
 
     def _update_filename(self):
 
-        # Split the path from the filename
-        #path, file = os.path.split(self.filename)
-
-        # Drop the file extension
-        #base, extension = file.rsplit('.', 1)
-
         match self.image_mode:
 
             case 'standard':
-
                 self.filename = self.path + '/' + self.basename + '.' + self.extension
 
             case 'bin3':
-                
                 self.filename = self.path + '/' + self.basename + '-bin3.' + self.extension
 
             case 'scale3':
-
                 self.filename = self.path + '/' + self.basename + '-scale3.' + self.extension
 
             case _:
-
                 print('Invalid image_mode')
 
 
@@ -227,10 +217,6 @@ class GCPList(list):
             # Apply binning
             gcp['sourceY'] = gcp['sourceY'] / 3
 
-            # Update height
-            #if self.cube_height is not None:
-            #    self.cube_height = self.cube_height / 3
-
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
@@ -242,10 +228,6 @@ class GCPList(list):
 
             # Apply scaling
             gcp['sourceX'] = gcp['sourceX'] * 3
-
-            # Update width
-            #if self.cube_width is not None:
-            #    self.cube_width = self.cube_width * 3
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -261,10 +243,6 @@ class GCPList(list):
             # Apply scaling
             gcp['sourceY'] = gcp['sourceY'] * 3
 
-            # Update height
-            #if self.cube_height is not None:
-            #    self.cube_height = self.cube_height * 3
-
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
@@ -277,12 +255,6 @@ class GCPList(list):
             # Apply scaling
             gcp['sourceX'] = gcp['sourceX'] * 3
             gcp['sourceY'] = gcp['sourceY'] * 3
-
-            # Update height and width
-            #if self.cube_height is not None:
-            #    self.cube_height = self.cube_height * 3
-            #if self.cube_width is not None:
-            #    self.cube_width = self.cube_width * 3
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -298,10 +270,6 @@ class GCPList(list):
             # Apply scaling
             gcp['sourceX'] = gcp['sourceX'] / 3
 
-            # Update width
-            #if self.cube_width is not None:
-            #    self.cube_width = self.cube_width / 3
-
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
@@ -314,12 +282,6 @@ class GCPList(list):
             # Apply scaling
             gcp['sourceX'] = gcp['sourceX'] / 3
             gcp['sourceY'] = gcp['sourceY'] / 3
-
-            # Update height and width
-            #if self.cube_height is not None:
-            #    self.cube_height = self.cube_height / 3
-            #if self.cube_width is not None:
-            #    self.cube_width = self.cube_width / 3
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -473,9 +435,6 @@ class PointsCSV():
     def __init__(self, filename):
 
         self.filename = filename
-        #self.header = None
-        #self.labels = None
-        #self.unproc_gcps = None
         
         self.default_header = '#CRS: GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble",MEMBER["World Geodetic System 1984 (Transit)"],MEMBER["World Geodetic System 1984 (G730)"],MEMBER["World Geodetic System 1984 (G873)"],MEMBER["World Geodetic System 1984 (G1150)"],MEMBER["World Geodetic System 1984 (G1674)"],MEMBER["World Geodetic System 1984 (G1762)"],ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1]],ENSEMBLEACCURACY[2.0]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],CS[ellipsoidal,2],AXIS["geodetic latitude (Lat)",north,ORDER[1],ANGLEUNIT["degree",0.0174532925199433]],AXIS["geodetic longitude (Lon)",east,ORDER[2],ANGLEUNIT["degree",0.0174532925199433]],USAGE[SCOPE["Horizontal component of 3D system."],AREA["World."],BBOX[-90,-180,90,180]],ID["EPSG",4326]]'
         self.default_fieldnames = 'mapX,mapY,sourceX,sourceY,enable,dX,dY,residual'
@@ -504,9 +463,6 @@ class PointsCSV():
 
             # Close file
             csv_file.close()
-                    #writer = csv.writer(csv_file, delimiter=',')
-            #writer.writerow(['Spam'] * 5 + ['Baked Beans'])
-            #writer.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
 
     def read_points_csv(self):
 
@@ -540,10 +496,6 @@ class PointsCSV():
 
             # Close file
             csv_file.close()
-
-        #self.header = header
-        #self.fieldnames = fieldnames
-        #self.unproc_gcps = unproc_gcps 
 
         return header, fieldnames, unproc_gcps 
 
