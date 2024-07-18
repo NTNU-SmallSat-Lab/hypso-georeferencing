@@ -19,7 +19,8 @@ gcps.change_image_mode(dst_image_mode='standard')
 
 print(gcps.image_mode)
 
-gcps.save()
+print(gcps.origin_mode)
 
+#gcps.save()
 
 
