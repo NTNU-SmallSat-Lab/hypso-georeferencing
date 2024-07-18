@@ -6,6 +6,9 @@ import skimage
 import numpy as np
 import os 
 
+# TODO check if current image_mode and destination image mode are the same 
+# TODO add indication in file name in case of cube origin mode
+
 class GCPList(list):
 
     SUPPORTED_IMAGE_MODES = ['bin3', 'scale3', 'standard']
@@ -55,24 +58,25 @@ class GCPList(list):
 
         self._load_gcps()
 
-    '''
+    
     def _detect_image_mode(self):
 
-        detected_image_mode = 'standard'
 
         for image_mode in self.SUPPORTED_IMAGE_MODES:
             if '-' + image_mode in self.filename:
                 detected_image_mode = image_mode
             
-        print('No image mode provided. Detected image mode: ' + detected_image_mode)
+        if detected_image_mode:    
+            print('No image mode provided. Detected image mode: ' + detected_image_mode)
+        else:
+            print('No image mode provided. Assuming image mode is: ' + detected_image_mode)
 
         return detected_image_mode
-    '''
 
     def _check_image_mode(self, image_mode):
 
         if not image_mode:
-            image_mode = 'standard'
+            image_mode = self._detect_image_mode()
 
         if image_mode not in self.SUPPORTED_IMAGE_MODES:
             print('Invalid image mode ' + image_mode + ' provided. Defaulting to \'standard\' image mode.')
@@ -161,6 +165,9 @@ class GCPList(list):
 
                 match dst_image_mode:
 
+                    case 'standard':
+                        self._update_filename()
+
                     case 'bin3':
                         self._standard_to_bin3_image_mode()
                         self._update_filename()
@@ -178,6 +185,9 @@ class GCPList(list):
 
                     case 'standard':
                         self._bin3_to_standard_image_mode()
+                        self._update_filename()
+
+                    case 'bin3':
                         self._update_filename()
 
                     case 'scale3':
@@ -199,6 +209,9 @@ class GCPList(list):
                         self._scale3_to_bin3_image_mode()
                         self._update_filename()
 
+                    case 'scale3':
+                        self._update_filename()
+
                     case _:
                         print('Invalid dst_image_mode')
 
@@ -208,6 +221,7 @@ class GCPList(list):
     # standard image mode conversion functons
 
     def _standard_to_bin3_image_mode(self):
+
         for idx, gcp in enumerate(self):
 
             # Apply binning
@@ -342,13 +356,12 @@ class GCPList(list):
 
     def _qgis_to_cube_origin_mode(self):
 
-        # TODO change self.cube_height based on image_mode
         image_mode_height = self._get_image_mode_height()
 
         for idx, gcp in enumerate(self):
 
             # Switch to top left origin
-            gcp['sourceY'] = gcp['sourceY'] + self.cube_height
+            gcp['sourceY'] = gcp['sourceY'] + image_mode_height
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -358,13 +371,12 @@ class GCPList(list):
 
     def _cube_to_qgis_origin_mode(self):
 
-        # TODO change self.cube_height based on image_mode
         image_mode_height = self._get_image_mode_height()
 
         for idx, gcp in enumerate(self):
 
             # Switch to top left origin
-            gcp['sourceY'] = gcp['sourceY'] - self.cube_height
+            gcp['sourceY'] = gcp['sourceY'] - image_mode_height
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -376,33 +388,33 @@ class GCPList(list):
         match self.image_mode:
 
             case 'standard':
-                return self.height
+                return self.cube_height
 
             case 'bin3':
-                return self.height / 3
+                return self.cube_height / 3
 
             case 'scale3':
-                return self.height
+                return self.cube_height
 
             case _:
                 print('Invalid image_mode')
-                return self.height
+                return self.cube_height
 
     def _get_image_mode_width(self):
         match self.image_mode:
 
             case 'standard':
-                return self.width
+                return self.cube_width
 
             case 'bin3':
-                return self.width
+                return self.cube_width
 
             case 'scale3':
-                return self.width * 3
+                return self.cube_width * 3
 
             case _:
                 print('Invalid image_mode')
-                return self.width
+                return self.cube_width
 
 class GCP(dict):
 
