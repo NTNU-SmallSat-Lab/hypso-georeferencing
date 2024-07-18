@@ -8,10 +8,10 @@ import os
 
 class GCPList(list):
 
-    SUPPORTED_IMAGE_MODES = ['bin3', 'scale3']
+    SUPPORTED_IMAGE_MODES = ['bin3', 'scale3', 'standard']
     SUPPORTED_ORIGIN_MODES = ['qgis', 'cube']
 
-    def __init__(self, filename, crs='epsg:4326', image_mode=None, origin_mode='qgis', height=None, width=None):
+    def __init__(self, filename, crs='epsg:4326', image_mode=None, origin_mode=None, cube_height=None, cube_width=None):
 
         super().__init__()
 
@@ -41,14 +41,21 @@ class GCPList(list):
         self.crs = crs
 
         # Set image mode
-        if image_mode is None:
-            self.image_mode = self._detect_image_mode()
-        else:
-            self.image_mode = image_mode
-            self.image_mode = self._check_image_mode()
+        self.image_mode = self._check_image_mode(image_mode)
+
+        # Set origin mode:
+        self.origin_mode = self._check_origin_mode(origin_mode)
+
+        # Set height:
+        self.cube_height = cube_height
+
+        # Set width:
+        self.cube_width = cube_width
+
 
         self._load_gcps()
 
+    '''
     def _detect_image_mode(self):
 
         detected_image_mode = 'standard'
@@ -60,13 +67,31 @@ class GCPList(list):
         print('No image mode provided. Detected image mode: ' + detected_image_mode)
 
         return detected_image_mode
+    '''
 
-    def _check_image_mode(self):
+    def _check_image_mode(self, image_mode):
 
-        if self.image_mode not in self.SUPPORTED_IMAGE_MODES:
-            print('Invalid image mode ' + self.image_mode + ' provided. Defaulting to \'standard\' mode.')
-            self.image_mode = 'standard'
+        if not image_mode:
+            image_mode = 'standard'
 
+        if image_mode not in self.SUPPORTED_IMAGE_MODES:
+            print('Invalid image mode ' + image_mode + ' provided. Defaulting to \'standard\' image mode.')
+            image_mode = 'standard'
+
+        return image_mode
+
+
+    def _check_origin_mode(self, origin_mode):
+
+        if not origin_mode:
+            origin_mode = None
+            return origin_mode
+
+        if origin_mode not in self.SUPPORTED_ORIGIN_MODES:
+            print('Invalid origin mode ' + origin_mode + ' provided.')
+            origin_mode = None
+
+        return origin_mode
 
 
     def _load_gcps(self):
@@ -114,6 +139,9 @@ class GCPList(list):
 
                 self.filename = self.path + '/' + self.basename + '-scale3.' + self.extension
 
+            case _:
+
+                print('Invalid image_mode')
 
 
     def convert_crs(self, dst_crs=None):
@@ -141,7 +169,8 @@ class GCPList(list):
                         self._standard_to_scale3_image_mode()
                         self._update_filename()
 
-                return
+                    case _:
+                        print('Invalid dst_image_mode')
 
             case 'bin3':
                 
@@ -155,7 +184,8 @@ class GCPList(list):
                         self._bin3_to_scale3_image_mode()
                         self._update_filename()
 
-                return
+                    case _:
+                        print('Invalid dst_image_mode')
 
             case 'scale3':
 
@@ -169,8 +199,11 @@ class GCPList(list):
                         self._scale3_to_bin3_image_mode()
                         self._update_filename()
 
-                return
-    
+                    case _:
+                        print('Invalid dst_image_mode')
+
+            case _:
+                print('Invalid image_mode')
 
     # standard image mode conversion functons
 
@@ -179,6 +212,10 @@ class GCPList(list):
 
             # Apply binning
             gcp['sourceY'] = gcp['sourceY'] / 3
+
+            # Update height
+            #if self.cube_height is not None:
+            #    self.cube_height = self.cube_height / 3
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -191,6 +228,10 @@ class GCPList(list):
 
             # Apply scaling
             gcp['sourceX'] = gcp['sourceX'] * 3
+
+            # Update width
+            #if self.cube_width is not None:
+            #    self.cube_width = self.cube_width * 3
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -206,6 +247,10 @@ class GCPList(list):
             # Apply scaling
             gcp['sourceY'] = gcp['sourceY'] * 3
 
+            # Update height
+            #if self.cube_height is not None:
+            #    self.cube_height = self.cube_height * 3
+
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
@@ -218,6 +263,12 @@ class GCPList(list):
             # Apply scaling
             gcp['sourceX'] = gcp['sourceX'] * 3
             gcp['sourceY'] = gcp['sourceY'] * 3
+
+            # Update height and width
+            #if self.cube_height is not None:
+            #    self.cube_height = self.cube_height * 3
+            #if self.cube_width is not None:
+            #    self.cube_width = self.cube_width * 3
 
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
@@ -233,6 +284,10 @@ class GCPList(list):
             # Apply scaling
             gcp['sourceX'] = gcp['sourceX'] / 3
 
+            # Update width
+            #if self.cube_width is not None:
+            #    self.cube_width = self.cube_width / 3
+
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
@@ -246,11 +301,108 @@ class GCPList(list):
             gcp['sourceX'] = gcp['sourceX'] / 3
             gcp['sourceY'] = gcp['sourceY'] / 3
 
+            # Update height and width
+            #if self.cube_height is not None:
+            #    self.cube_height = self.cube_height / 3
+            #if self.cube_width is not None:
+            #    self.cube_width = self.cube_width / 3
+
             # Update GCP
             self[idx] = GCP(**gcp, crs=gcp.crs)
 
         self.image_mode = 'bin3'
 
+
+    def change_origin_mode(self, dst_origin_mode=None):
+
+
+        if self.cube_height is None or self.cube_width is None:
+
+            print('No available cube height or width information. Unable to change origin mode.')
+
+            return
+
+        match self.origin_mode:
+
+            case 'qgis':
+
+                # convert to cube origin mode
+                self._qgis_to_cube_origin_mode()
+
+            case 'cube':
+
+                # convert to qgis origin mode
+                self._cube_to_qgis_origin_mode()
+
+            case _:
+
+                print('No origin mode set. Please first provide an origin mode before running this function.')
+
+
+
+    def _qgis_to_cube_origin_mode(self):
+
+        # TODO change self.cube_height based on image_mode
+        image_mode_height = self._get_image_mode_height()
+
+        for idx, gcp in enumerate(self):
+
+            # Switch to top left origin
+            gcp['sourceY'] = gcp['sourceY'] + self.cube_height
+
+            # Update GCP
+            self[idx] = GCP(**gcp, crs=gcp.crs)
+
+        self.origin_mode = 'cube'
+
+
+    def _cube_to_qgis_origin_mode(self):
+
+        # TODO change self.cube_height based on image_mode
+        image_mode_height = self._get_image_mode_height()
+
+        for idx, gcp in enumerate(self):
+
+            # Switch to top left origin
+            gcp['sourceY'] = gcp['sourceY'] - self.cube_height
+
+            # Update GCP
+            self[idx] = GCP(**gcp, crs=gcp.crs)
+
+        self.origin_mode = 'cube'
+
+    def _get_image_mode_height(self):
+
+        match self.image_mode:
+
+            case 'standard':
+                return self.height
+
+            case 'bin3':
+                return self.height / 3
+
+            case 'scale3':
+                return self.height
+
+            case _:
+                print('Invalid image_mode')
+                return self.height
+
+    def _get_image_mode_width(self):
+        match self.image_mode:
+
+            case 'standard':
+                return self.width
+
+            case 'bin3':
+                return self.width
+
+            case 'scale3':
+                return self.width * 3
+
+            case _:
+                print('Invalid image_mode')
+                return self.width
 
 class GCP(dict):
 
@@ -389,11 +541,12 @@ class PointsCSV():
 
 class Georeferencer(GCPList):
 
-    def __init__(self, filename, height, width, crs='epsg:4326', image_mode=None, origin_mode='qgis'):
-        super().__init__(filename, crs, image_mode, origin_mode)
+    def __init__(self, filename, cube_height, cube_width, crs='epsg:4326', image_mode=None, origin_mode='qgis'):
+        
+        super().__init__(filename, crs=crs, image_mode=image_mode, origin_mode=origin_mode, height=cube_height, width=cube_width)
 
-        self.height = height
-        self.width = width
+        self.cube_height = cube_height
+        self.cube_width = cube_width
 
         self.img_coords = None
         self.geo_coords = None
@@ -437,11 +590,11 @@ class Georeferencer(GCPList):
     def _generate_polynomial_lat_lon_arrays(self):
 
             # Create empty arrays to write lat and lon data
-            self.latitudes = np.empty((self.height, self.width))
-            self.longitudes = np.empty((self.height, self.width))
+            self.latitudes = np.empty((self.cube_height, self.cube_width))
+            self.longitudes = np.empty((self.cube_height, self.cube_width))
 
             # Generate X and Y coordinates
-            x_coords, y_coords = np.meshgrid(np.arange(self.height), np.arange(self.width), indexing='ij')
+            x_coords, y_coords = np.meshgrid(np.arange(self.cube_height), np.arange(self.cube_width), indexing='ij')
 
             # Combine the X and Y coordinates into a list of (x, y) tuples
             image_coordinates = list(zip(x_coords.ravel(), y_coords.ravel()))
