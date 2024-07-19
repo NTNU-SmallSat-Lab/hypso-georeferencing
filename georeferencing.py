@@ -507,7 +507,7 @@ class Georeferencer(GCPList):
 
     def __init__(self, filename, cube_height, cube_width, crs='epsg:4326', image_mode=None, origin_mode='qgis'):
         
-        super().__init__(filename, crs=crs, image_mode=image_mode, origin_mode=origin_mode, height=cube_height, width=cube_width)
+        super().__init__(filename, crs=crs, image_mode=image_mode, origin_mode=origin_mode, cube_height=cube_height, cube_width=cube_width)
 
         self.cube_height = cube_height
         self.cube_width = cube_width
