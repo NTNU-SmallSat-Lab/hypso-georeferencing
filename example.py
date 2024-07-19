@@ -9,10 +9,11 @@ points_file = 'erie_2022_08_27T16_05_36-bin3.points'
 
 filename = os.path.join(dir_path, points_file)
 
-image_height = 956
-image_width = 228*3
+height = 956
+width = 228*3
 
-gr = georeferencing.Georeferencer(filename, image_height, image_width)
+gr = georeferencing.Georeferencer(filename, height, width)
 
 print(gr.latitudes)
 print(gr.longitudes)
+
