@@ -39,10 +39,10 @@ class GCPList(list):
             basename = base[:max(image_mode_indices)]
 
         # Set filename info
-        self.filename = filename
-        self.path = path
-        self.extension = extension
-        self.basename = basename
+        self.filename = str(filename)
+        self.path = str(path)
+        self.extension = str(extension)
+        self.basename = str(basename)
 
         # Set CRS
         self.crs = crs
