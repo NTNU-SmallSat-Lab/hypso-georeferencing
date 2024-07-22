@@ -67,7 +67,7 @@ class GCPList(list):
 
 
         for image_mode in self.SUPPORTED_IMAGE_MODES:
-            if '-' + image_mode in self.filename:
+            if '-' + image_mode in str(self.filename):
                 detected_image_mode = image_mode
             
         if detected_image_mode:    
@@ -130,13 +130,13 @@ class GCPList(list):
         match self.image_mode:
 
             case 'standard':
-                self.filename = self.path + '/' + self.basename + '.' + self.extension
+                self.filename = str(self.path) + '/' + str(self.basename) + '.' + str(self.extension)
 
             case 'bin3':
-                self.filename = self.path + '/' + self.basename + '-bin3.' + self.extension
+                self.filename = str(self.path) + '/' + str(self.basename) + '-bin3.' + str(self.extension)
 
             case 'scale3':
-                self.filename = self.path + '/' + self.basename + '-scale3.' + self.extension
+                self.filename = str(self.path) + '/' + str(self.basename) + '-scale3.' + str(self.extension)
 
             case _:
                 print('Invalid image_mode')
@@ -438,7 +438,7 @@ class PointsCSV():
 
     def __init__(self, filename):
 
-        self.filename = filename
+        self.filename = str(filename)
         
         self.default_header = '#CRS: GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble",MEMBER["World Geodetic System 1984 (Transit)"],MEMBER["World Geodetic System 1984 (G730)"],MEMBER["World Geodetic System 1984 (G873)"],MEMBER["World Geodetic System 1984 (G1150)"],MEMBER["World Geodetic System 1984 (G1674)"],MEMBER["World Geodetic System 1984 (G1762)"],ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1]],ENSEMBLEACCURACY[2.0]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],CS[ellipsoidal,2],AXIS["geodetic latitude (Lat)",north,ORDER[1],ANGLEUNIT["degree",0.0174532925199433]],AXIS["geodetic longitude (Lon)",east,ORDER[2],ANGLEUNIT["degree",0.0174532925199433]],USAGE[SCOPE["Horizontal component of 3D system."],AREA["World."],BBOX[-90,-180,90,180]],ID["EPSG",4326]]'
         self.default_fieldnames = 'mapX,mapY,sourceX,sourceY,enable,dX,dY,residual'
@@ -448,7 +448,7 @@ class PointsCSV():
 
     def write_points_csv(self, gcps=[]):
         
-        with open(self.filename, 'w') as csv_file:
+        with open(str(self.filename), 'w') as csv_file:
 
             csv_file.write(self.default_header)
             csv_file.write('\n')
@@ -473,7 +473,7 @@ class PointsCSV():
         # Unprocessed GCPs list
         unproc_gcps = []
 
-        with open(self.filename, 'r') as csv_file:
+        with open(str(self.filename), 'r') as csv_file:
 
             header = csv_file.readline().rstrip()
             fieldnames = csv_file.readline().rstrip()
