@@ -21,6 +21,10 @@ class GCPList(list):
         # Split the path from the filename
         path, file = os.path.split(filename)
 
+        # Convert to string if they aren't already
+        path = str(path)
+        file = str(file)
+
         # Drop the file extension
         base, extension = file.rsplit('.', 1)
 
