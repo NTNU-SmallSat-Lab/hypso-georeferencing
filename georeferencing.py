@@ -65,6 +65,7 @@ class GCPList(list):
     
     def _detect_image_mode(self):
 
+        detected_image_mode = None
 
         for image_mode in self.SUPPORTED_IMAGE_MODES:
             if '-' + image_mode in str(self.filename):
@@ -579,33 +580,6 @@ class Georeferencer(GCPList):
 
 
 
-    def _compute_polynomial_transform(self, X, Y, lat_coefficients, lon_coefficients):
-        
-        ## Example usage:
-        #for Y in range(0, image_height):
-        #    for X in range(0, image_width):
-        #        lon, lat = self.compute_polynomial_transform(Y, X, lat_coefficients, lon_coefficients)
-        #        lats[Y,X] = lat
-        #        lons[Y,X] = lon
-
-
-        #X = sum[j=0:order]( sum[i=0:j]( a_ji * x**(j - i) * y**i ))
-
-        #x.T = [a00 a10 a11 a20 a21 a22 ... ann
-        #   b00 b10 b11 b20 b21 b22 ... bnn c3]
-
-        #X = (( a_00 * x**(0 - 0) * y**0 ))
-        #(( a_10 * x**(1 - 0) * y**0 ))  +  (( a_11 * x**(1 - 1) * y**1 ))
-        #(( a_20 * x**(2 - 0) * y**0 ))  +  (( a_21 * x**(2 - 1) * y**1 )) 
-        #                                +  (( a_22 * x**(2 - 2) * y**2 ))
-
-        c = lat_coefficients
-        lat = c[0] + c[1]*X + c[2]*Y + c[3]*X**2 + c[4]*X*Y + c[5]*Y**2
-
-        c = lon_coefficients
-        lon = c[0] + c[1]*X + c[2]*Y + c[3]*X**2 + c[4]*X*Y + c[5]*Y**2
-
-        return (lat, lon)
 
 
 
