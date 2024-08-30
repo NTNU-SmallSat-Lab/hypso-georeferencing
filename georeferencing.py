@@ -65,7 +65,7 @@ class GCPList(list):
     
     def _detect_image_mode(self):
 
-        detected_image_mode = None
+        detected_image_mode = 'bin3'
 
         for image_mode in self.SUPPORTED_IMAGE_MODES:
             if '-' + image_mode in str(self.filename):
